@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="GB2312" standalone="no"?>
+<SylixOSSetting>
+    <BaseSetting Profile="standard" ProjectType="SylixOSAppProject" RealEvoVer="6.5.0 Professional" TlsVersion="ECS"/>
+    <OutputSetting>
+        <OutputPath Name="Output" Path="Release:Debug" TreeNode="Output"/>
+        <OutputPath Name="Debug" Path="Debug" TreeNode="Debug"/>
+        <OutputPath Name="Release" Path="Release" TreeNode="Release"/>
+    </OutputSetting>
+    <BuildSetting CoustomCfgMakefile="false" NeedReBuild="false" NotScanSourceFile="false"/>
+    <UploadPath>
+        <PairItem key="$(WORKSPACE_dataproc_server)/$(Output)/strip/dataproc_server" value="/apps/dataproc_server/dataproc_server"/>
+    </UploadPath>
+    <DeviceSetting DevName="169.254.80.127" WorkDir=""/>
+    <ExtDevNames/>
+    <DataDictionary/>
+</SylixOSSetting>
