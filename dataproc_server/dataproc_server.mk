@@ -34,7 +34,9 @@ LOCAL_TARGET_NAME := dataproc_server
 #*********************************************************************************************************
 LOCAL_SRCS :=  \
 src/dataproc_parser.c \
-src/dataproc_server.c
+src/dataproc_server.c \
+src/test_command_gyro.c \
+src/test_command_star.c
 
 #*********************************************************************************************************
 # Header file search path (eg. LOCAL_INC_PATH := -I"Your header files search path")

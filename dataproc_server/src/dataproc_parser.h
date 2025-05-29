@@ -1,7 +1,7 @@
 /*
  * dataproc_parser.h
  *
- *  Created on: 2025Äê5ÔÂ28ÈÕ
+ *  Created on: 2025ï¿½ï¿½5ï¿½ï¿½28ï¿½ï¿½
  *      Author: fanxu
  */
 
@@ -9,20 +9,32 @@
 #define DATAPROC_PARSER_H
 
 #include <stdbool.h>
-#include "vsoa_parser.h"  // °üº¬vsoa_payload_tµÄ¶¨Òå
-#include "computility.h"  // °üº¬FiberGyroºÍMEMSGyroµÄ¶¨Òå
-#include "yyjson.h"      // °üº¬yyjsonÏà¹ØµÄ¶¨Òå
+#include "vsoa_parser.h"  // ï¿½ï¿½ï¿½ï¿½vsoa_payload_tï¿½Ä¶ï¿½ï¿½ï¿½
+#include "computility.h"  // ï¿½ï¿½ï¿½ï¿½FiberGyroï¿½ï¿½MEMSGyroï¿½Ä¶ï¿½ï¿½ï¿½
+#include "yyjson.h"      // ï¿½ï¿½ï¿½ï¿½yyjsonï¿½ï¿½ØµÄ¶ï¿½ï¿½ï¿½
 
-// ½âÎö¹âÏËÍÓÂİÒÇÊı¾İ
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 bool parse_fiber_gyro(yyjson_val *gyro_val, FiberGyro *gyro);
 
-// ½âÎöMEMSÍÓÂİÒÇÊı¾İ
+// ï¿½ï¿½ï¿½ï¿½MEMSï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 bool parse_mems_gyro(yyjson_val *gyro_val, MEMSGyro *gyro);
 
-// ½âÎö¿Í»§¶Ë´«À´µÄJSONÊı¾İµ½Gyro1, Gyro2, OrbCtrlAllowFlag
+// è§£æå®¢æˆ·ç«¯ä¼ è¾“çš„JSONæ•°æ®çš„Gyro1, Gyro2, OrbCtrlAllowFlag
 bool parse_gyro_payload(const vsoa_payload_t *payload,
                       FiberGyro *Gyro1,
                       MEMSGyro *Gyro2,
                       int *OrbCtrlAllowFlag);
+
+// Parse StarSensor structure from JSON
+bool parse_star_sensor(yyjson_val *star_val, StarSensor *star);
+
+// Parse AttitudeData structure from JSON
+bool parse_attitude_data(yyjson_val *atti_val, AttitudeData *atti);
+
+// Parse client JSON data for Star1, Star2, AttitudeData
+bool parse_star_payload(const vsoa_payload_t *payload,
+                       StarSensor *Star1,
+                       StarSensor *Star2,
+                       AttitudeData *AttiData);
 
 #endif // DATAPROC_PARSER_H

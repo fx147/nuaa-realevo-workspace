@@ -9,12 +9,12 @@
 #include "dataproc.h"
 
 // 陀螺仪数据处理回调函数
-static void command_gyro(void *arg, vsoa_server_t *server, vsoa_cli_id_t cid,
+void command_gyro(void *arg, vsoa_server_t *server, vsoa_cli_id_t cid,
                         vsoa_header_t *vsoa_hdr, vsoa_url_t *url,
                         vsoa_payload_t *payload);
 
 // 星敏感器数据处理回调函数
-static void command_star(void *arg, vsoa_server_t *server, vsoa_cli_id_t cid,
+void command_star(void *arg, vsoa_server_t *server, vsoa_cli_id_t cid,
                          vsoa_header_t *vsoa_hdr, vsoa_url_t *url,
                          vsoa_payload_t *payload);
 
