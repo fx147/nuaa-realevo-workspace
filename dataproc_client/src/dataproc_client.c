@@ -94,9 +94,9 @@ static bool send_gyro_data()
     payload.param = (char*)gyro_json;
     payload.param_len = strlen(gyro_json);
     
-    printf("Sending gyro data: %s\n", gyro_json);
+    // printf("Sending gyro data: %s\n", gyro_json);
     
-    return vsoa_client_call(client, VSOA_CLIENT_RPC_METHOD_SET,
+    return vsoa_client_call(client, VSOA_CLIENT_RPC_METHOD_GET,
                            &url, &payload, gyro_callback, NULL, &timeout);
 }
 
@@ -150,7 +150,7 @@ static bool send_star_data()
     payload.param = (char*)star_json;
     payload.param_len = strlen(star_json);
     
-    printf("Sending star data: %s\n", star_json);
+    // printf("Sending star data: %s\n", star_json);
     
     return vsoa_client_call(client, VSOA_CLIENT_RPC_METHOD_SET,
                            &url, &payload, star_callback, NULL, &timeout);
@@ -173,8 +173,17 @@ int main(int argc, char **argv)
     // Lookup server
     if (!vsoa_position_lookup(AF_INET, "dataproc_server",
                               (struct sockaddr *)&addr, &serv_len, NULL, &timeout)) {
-        fprintf(stderr, "Can not found VSOA dataproc_server!\n");
-        return -1;
+        fprintf(stderr, "Can not found VSOA dataproc_server, trying localhost:33333...\n");
+        
+        // Try localhost:33333 as fallback
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(33333);
+        if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) <= 0) {
+            fprintf(stderr, "Invalid localhost address!\n");
+            return -1;
+        }
+        printf("Using fallback address localhost:33333\n");
     }
     
     // Create client

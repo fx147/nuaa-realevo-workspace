@@ -138,12 +138,13 @@ bool parse_mems_gyro(yyjson_val *gyro_val, MEMSGyro *gyro) {
     return true;
 }
 
-// �����ͻ��˴����� JSON ���ݵ� Gyro1, Gyro2, OrbCtrlAllowFlag
+// �����ͻ��˴����� JSON ���ݵ� Gyro1, Gyro2, OrbCtrlAllowFlag, wbi_StarMeas
 bool parse_gyro_payload(const vsoa_payload_t *payload,
                         FiberGyro *Gyro1,
                         MEMSGyro *Gyro2,
-                        int *OrbCtrlAllowFlag) {
-    if (!payload || !payload->param || !Gyro1 || !Gyro2 || !OrbCtrlAllowFlag) {
+                        int *OrbCtrlAllowFlag,
+                        double wbi_StarMeas[3]) {
+    if (!payload || !payload->param || !Gyro1 || !Gyro2 || !OrbCtrlAllowFlag || !wbi_StarMeas) {
         return false;
     }
 
@@ -181,6 +182,23 @@ bool parse_gyro_payload(const vsoa_payload_t *payload,
         return false;
     }
     *OrbCtrlAllowFlag = (int)yyjson_get_sint(flag_val);
+
+    // ���� wbi_StarMeas
+    yyjson_val *wbi_star_val = yyjson_obj_get(root, "wbi_StarMeas");
+    if (wbi_star_val && yyjson_is_arr(wbi_star_val)) {
+        yyjson_val *meas_item;
+        size_t idx, max;
+        yyjson_arr_foreach(wbi_star_val, idx, max, meas_item) {
+            if (yyjson_is_real(meas_item) && idx < 3) {
+                wbi_StarMeas[idx] = yyjson_get_real(meas_item);
+            }
+        }
+    } else {
+        // ���û���ṩ wbi_StarMeas������Ϊĭ��ֵ 0
+        wbi_StarMeas[0] = 0.0;
+        wbi_StarMeas[1] = 0.0;
+        wbi_StarMeas[2] = 0.0;
+    }
 
     yyjson_doc_free(doc);
     return true;

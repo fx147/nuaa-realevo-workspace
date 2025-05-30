@@ -32,16 +32,25 @@ void command_gyro(void *arg, vsoa_server_t *server, vsoa_cli_id_t cid,
     FiberGyro Gyro1 = {0};
     MEMSGyro Gyro2 = {0};
     int OrbCtrlAllowFlag = 0;
+    double wbi_StarMeas[3] = {0};
 
     // 解析客户端传入的 JSON 数据
-    if (!parse_gyro_payload(payload, &Gyro1, &Gyro2, &OrbCtrlAllowFlag)) {
+    if (!parse_gyro_payload(payload, &Gyro1, &Gyro2, &OrbCtrlAllowFlag, wbi_StarMeas)) {
         send.param = "{\"error\": \"Invalid input data\"}";
         send.param_len = strlen(send.param);
         vsoa_server_cli_reply(server, cid, 1, seqno, 0, &send);
         return;
     }
 
-    double wbi_StarMeas[3] = {0};  // 默认值，表示未获取
+    // // 打印解析后的参数
+    // printf("=== Gyro Data Processing Parameters ===\n");
+    // printf("Gyro1 - Flag: %d, OnFlag: %d, FaultCnt: %d\n", Gyro1.Flag, Gyro1.OnFlag, Gyro1.FaultCnt);
+    // printf("Gyro1 - Meas: [%.6f, %.6f, %.6f]\n", Gyro1.Meas[0], Gyro1.Meas[1], Gyro1.Meas[2]);
+    // printf("Gyro2 - Flag: %d, OnFlag: %d, FaultCnt: %d\n", Gyro2.Flag, Gyro2.OnFlag, Gyro2.FaultCnt);
+    // printf("Gyro2 - Meas: [%.6f, %.6f, %.6f]\n", Gyro2.Meas[0], Gyro2.Meas[1], Gyro2.Meas[2]);
+    // printf("OrbCtrlAllowFlag: %d\n", OrbCtrlAllowFlag);
+    // printf("wbi_StarMeas: [%.6f, %.6f, %.6f]\n", wbi_StarMeas[0], wbi_StarMeas[1], wbi_StarMeas[2]);
+    // printf("=======================================\n");
 
     // 执行数据处理
     GyroDataProcessing(Gyro1, Gyro2, OrbCtrlAllowFlag, wbi_StarMeas);
@@ -75,6 +84,20 @@ void command_star(void *arg, vsoa_server_t *server, vsoa_cli_id_t cid,
         vsoa_server_cli_reply(server, cid, 1, seqno, 0, &send);
         return;
     }
+
+    // // 打印解析后的参数
+    // printf("=== Star Data Processing Parameters ===\n");
+    // printf("Star1 - Flag: %d, OnFlag: %d, FaultCnt: %d, StarNum: %d\n", Star1.Flag, Star1.OnFlag, Star1.FaultCnt, Star1.StarNum);
+    // printf("Star1 - Meas: [%.6f, %.6f, %.6f, %.6f]\n", Star1.Meas[0], Star1.Meas[1], Star1.Meas[2], Star1.Meas[3]);
+    // printf("Star1 - MeasVel: [%.6f, %.6f, %.6f]\n", Star1.MeasVel[0], Star1.MeasVel[1], Star1.MeasVel[2]);
+    // printf("Star2 - Flag: %d, OnFlag: %d, FaultCnt: %d, StarNum: %d\n", Star2.Flag, Star2.OnFlag, Star2.FaultCnt, Star2.StarNum);
+    // printf("Star2 - Meas: [%.6f, %.6f, %.6f, %.6f]\n", Star2.Meas[0], Star2.Meas[1], Star2.Meas[2], Star2.Meas[3]);
+    // printf("Star2 - MeasVel: [%.6f, %.6f, %.6f]\n", Star2.MeasVel[0], Star2.MeasVel[1], Star2.MeasVel[2]);
+    // printf("AttiData - AttiFiltValidFlag: %d, OrbCtrlAllowFlag: %d\n", AttiData.AttiFiltValidFlag, AttiData.OrbCtrlAllowFlag);
+    // printf("AttiData - QuatOrbit: [%.6f, %.6f, %.6f, %.6f]\n", AttiData.QuatOrbit[0], AttiData.QuatOrbit[1], AttiData.QuatOrbit[2], AttiData.QuatOrbit[3]);
+    // printf("AttiData - AttiQuatEst: [%.6f, %.6f, %.6f, %.6f]\n", AttiData.AttiQuatEst[0], AttiData.AttiQuatEst[1], AttiData.AttiQuatEst[2], AttiData.AttiQuatEst[3]);
+    // printf("AttiData - wbi_StarMeas: [%.6f, %.6f, %.6f]\n", AttiData.wbi_StarMeas[0], AttiData.wbi_StarMeas[1], AttiData.wbi_StarMeas[2]);
+    // printf("======================================\n");
 
     // Execute data processing
     StarDataProcessing(Star1, Star2, AttiData);
