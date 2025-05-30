@@ -10,11 +10,11 @@
 #
 #--------------文件信息--------------------------------------------------------------------------------
 #
-# 文   件   名: dataproc_server.mk
+# 文   件   名: dataproc_client.mk
 #
 # 创   建   人: RealEvo-IDE
 #
-# 文件创建日期: 2025 年 05 月 28 日
+# 文件创建日期: 2025 年 05 月 29 日
 #
 # 描        述: 本文件由 RealEvo-IDE 生成，用于配置 Makefile 功能，请勿手动修改
 #*********************************************************************************************************
@@ -27,14 +27,13 @@ include $(CLEAR_VARS_MK)
 #*********************************************************************************************************
 # Target
 #*********************************************************************************************************
-LOCAL_TARGET_NAME := dataproc_server
+LOCAL_TARGET_NAME := dataproc_client
 
 #*********************************************************************************************************
 # Source list
 #*********************************************************************************************************
 LOCAL_SRCS :=  \
-src/dataproc_parser.c \
-src/dataproc_server.c
+src/dataproc_client.c
 
 #*********************************************************************************************************
 # Header file search path (eg. LOCAL_INC_PATH := -I"Your header files search path")
@@ -42,7 +41,7 @@ src/dataproc_server.c
 LOCAL_INC_PATH :=  \
 -I"$(WORKSPACE_vsoa)/vsoa/libs/libjson" \
 -I"$(WORKSPACE_vsoa)/vsoa/libs/libvsoa" \
--I"$(WORKSPACE_dataproc)/libdataproc"
+-I"$(WORKSPACE_dataprocessing)/include"
 
 #*********************************************************************************************************
 # Pre-defined macro (eg. -DYOUR_MARCO=1)
@@ -60,13 +59,10 @@ LOCAL_LINKFLAGS :=
 # Depend library (eg. LOCAL_DEPEND_LIB := -la LOCAL_DEPEND_LIB_PATH := -L"Your library search path")
 #*********************************************************************************************************
 LOCAL_DEPEND_LIB :=  \
--lvsoa-json \
--lvsoa-parser \
--lvsoa-server \
--ldataproc
+-lvsoa-position \
+-lvsoa-client
 LOCAL_DEPEND_LIB_PATH :=  \
--L"$(WORKSPACE_vsoa)/build/ARM64_GENERIC/Release/strip" \
--L"$(WORKSPACE_dataproc)/Debug"
+-L"$(WORKSPACE_vsoa)/build/ARM64_GENERIC/Release/strip"
 
 #*********************************************************************************************************
 # Linker specific
@@ -105,11 +101,7 @@ LOCAL_POST_STRIP_CMD :=
 #*********************************************************************************************************
 # Depend target
 #*********************************************************************************************************
-LOCAL_DEPEND_TARGET :=  \
-$(WORKSPACE_dataprocessing)/$(Output)/dataprocessing \
-$(WORKSPACE_dataprocessing)/Debug/obj/dataprocessing/src/AttiMeasFun.o \
-$(WORKSPACE_dataprocessing)/Debug/obj/dataprocessing/src/computility.o \
-$(WORKSPACE_dataprocessing)/Debug/obj/dataprocessing/src/selfmath.o
+LOCAL_DEPEND_TARGET := 
 
 include $(APPLICATION_MK)
 

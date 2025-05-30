@@ -14,8 +14,7 @@
 #include "dataproc.h"
 
 #define SERVER_PASSWD       "123456"
-#define VSOA_AUTO_PORT_ENV  "VSOA_AUTO_PORT="
-#define SERVER_DEFAULT_PORT 3001
+#define SERVER_DEFAULT_PORT 33333
 
 // 当前服务器实例
 static vsoa_server_t *server;
@@ -88,90 +87,82 @@ void command_star(void *arg, vsoa_server_t *server, vsoa_cli_id_t cid,
     vsoa_server_cli_reply(server, cid, 0, seqno, 0, &send);
 }
 
+int main(int argc, char **argv) {
+    // 绑定地址时确保正确性
+    struct sockaddr_in addr;
 
+    // 绑定到0.0.0.0:33333
+    bzero(&addr, sizeof(struct sockaddr_in));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(SERVER_DEFAULT_PORT);
+    addr.sin_addr.s_addr = INADDR_ANY;
 
-// int main(int argc, char **argv) {
-//     // 绑定地址时确保正确性
-//     struct sockaddr_in addr;
-//     uint16_t server_port = SERVER_DEFAULT_PORT;
+#ifdef VSOA_HAS_SIN_LEN
+    addr.sin_len = sizeof(struct sockaddr_in);
+#endif
 
-//     char *autoPort = getenv(VSOA_AUTO_PORT_ENV);
-//     if (autoPort != NULL) {
-//         fprintf(stdout, "ser port is %s .\n", autoPort);
+    /*
+    * Initialize server
+    */
+    server = vsoa_server_create("{\"name\":\"dataproc_server\"}");
+    if (!server) {
+        fprintf(stderr, "Can not create VSOA server!\n");
+        return (-1);
+    }
 
-//         server_port = atoi(autoPort);
-//         if (server_port == 0) {
-//             server_port = SERVER_DEFAULT_PORT;
-//         }
-//     }
+    /*
+    * If need password
+    */
+    vsoa_server_passwd(server, SERVER_PASSWD);
 
-//     bzero(&addr, sizeof(struct sockaddr_in));
-//     addr.sin_family = AF_INET;
-//     addr.sin_port = htons(server_port);
-//     addr.sin_addr.s_addr = INADDR_ANY;
+    /*
+    * Add /dataproc/gyro listener
+    */
+    vsoa_url_t url_gyro;
+    url_gyro.url = "/dataproc/gyro";
+    url_gyro.url_len = strlen(url_gyro.url);
+    vsoa_server_add_listener(server, &url_gyro, command_gyro, NULL);
 
-// #ifdef VSOA_HAS_SIN_LEN
-//     addr.sin_len = sizeof(struct sockaddr_in);
-// #endif
+    /*
+    * Add /dataproc/star listener
+    */
+    vsoa_url_t url_star;
+    url_star.url = "/dataproc/star";
+    url_star.url_len = strlen(url_star.url);
+    vsoa_server_add_listener(server, &url_star, command_star, NULL);
 
-//     /*
-//     * Initialize server
-//     */
-//     server = vsoa_server_create("{\"name\":\"dataproc_server\"}");
-//     if (!server) {
-//         fprintf(stderr, "Can not create VSOA server!\n");
-//         return (-1);
-//     }
+    /*
+    * Start server
+    */
+    if (!vsoa_server_start(server, (struct sockaddr *)&addr, sizeof(struct sockaddr_in))) {
+        vsoa_server_close(server);
+        fprintf(stderr, "Can not start VSOA server!\n");
+        return (-1);
+    }
 
-//     /*
-//     * If need password
-//     */
-//     vsoa_server_passwd(server, SERVER_PASSWD);
+    fprintf(stdout, "Create server successful, Waiting for client input...\n");
 
-//     /*
-//     * Add /dataproc/gyro listener
-//     */
-//     vsoa_url_t url_gyro;
-//     url_gyro.url = "/dataproc/gyro";
-//     url_gyro.url_len = strlen(url_gyro.url);
-//     vsoa_server_add_listener(server, &url_gyro, command_gyro, NULL);
+    int cnt, max_fd;
+    fd_set fds;
+    struct timespec timeout = {1, 0};
+    while (1) {
+        // 清空文件描述符集合fds
+        FD_ZERO(&fds);
+        // 获取服务器相关的文件描述符并返回最大文件描述符
+        max_fd = vsoa_server_fds(server, &fds);
 
-//     /*
-//     * Add /dataproc/star listener
-//     */
-//     vsoa_url_t url_star;
-//     url_star.url = "/dataproc/star";
-//     url_star.url_len = strlen(url_star.url);
-//     vsoa_server_add_listener(server, &url_star, command_star, NULL);
+        cnt = pselect(max_fd + 1, &fds, NULL, NULL, &timeout, NULL);
+        if (cnt > 0) {
+            vsoa_server_input_fds(server, &fds);
+        }
+    }
 
-//     /*
-//     * Start server
-//     */
-//     if (!vsoa_server_start(server, (struct sockaddr *)&addr, sizeof(struct sockaddr_in))) {
-//         vsoa_server_close(server);
-//         fprintf(stderr, "Can not start VSOA server!\n");
-//         return (-1);
-//     }
-
-//     int cnt, max_fd;
-//     fd_set fds;
-//     struct timespec timeout = {1, 0};
-//     while (1) {
-//         FD_ZERO(&fds);
-//         max_fd = vsoa_server_fds(server, &fds);
-
-//         cnt = pselect(max_fd + 1, &fds, NULL, NULL, &timeout, NULL);
-//         if (cnt > 0) {
-//             vsoa_server_input_fds(server, &fds);
-//         }
-//     }
-
-//     return (0);
-// }
-
-int main() {
-    test_command_gyro_callback();
-    test_command_star_callback();
-
-    return 0;
+    return (0);
 }
+
+// int main() {
+//     test_command_gyro_callback();
+//     test_command_star_callback();
+
+//     return 0;
+// }

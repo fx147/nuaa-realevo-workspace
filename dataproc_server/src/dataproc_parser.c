@@ -13,7 +13,6 @@
 #include "vsoa_parser.h"
 #include "computility.h"
 
-// ������������������
 bool parse_fiber_gyro(yyjson_val *gyro_val, FiberGyro *gyro) {
     if (!gyro_val || !yyjson_is_obj(gyro_val) || !gyro) {
         return false;
