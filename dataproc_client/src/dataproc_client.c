@@ -170,18 +170,28 @@ int main(int argc, char **argv)
     
     printf("Data Processing Client Starting...\n");
     
+    // Lookup server with retry
+    // printf("Looking up dataproc_server...\n");
+    // while (!vsoa_position_lookup(AF_INET, "dataproc_server",
+    //                              (struct sockaddr *)&addr, &serv_len, NULL, &timeout)) {
+    //     fprintf(stderr, "Can not found VSOA dataproc_server, retrying in 1 second...\n");
+    //     sleep(1);
+    // }
+    // printf("Found dataproc_server successfully\n");
+
     // Lookup server
     if (!vsoa_position_lookup(AF_INET, "dataproc_server",
-                              (struct sockaddr *)&addr, &serv_len, NULL, &timeout)) {
-        fprintf(stderr, "Can not found VSOA dataproc_server, trying localhost:33333...\n");
-        
+        (struct sockaddr *)&addr, &serv_len, NULL, &timeout)) {
+        fprintf(stderr, "Can not found VSOA dataproc_server, trying 169.254.80.127:33333...\n");
+
         // Try localhost:33333 as fallback
+        // 这里如果不是本机执行，ip地址的修改是错误的
         memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
         addr.sin_port = htons(33333);
-        if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) <= 0) {
-            fprintf(stderr, "Invalid localhost address!\n");
-            return -1;
+        if (inet_pton(AF_INET, "169.254.80.127", &addr.sin_addr) <= 0) {
+        fprintf(stderr, "Invalid localhost address!\n");
+        return -1;
         }
         printf("Using fallback address localhost:33333\n");
     }

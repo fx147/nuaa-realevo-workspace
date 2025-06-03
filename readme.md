@@ -123,5 +123,33 @@ void StarDataProcessing(StarSensor Star1,StarSensor Star2, AttitudeData AttiData
 
 进展：
 
-1. 询问翼辉人员Vmessage怎么和远程开发板上通信
-2. 为什么vcx -g'{"value": 0}' -p 1234 -d 123456 -x 169.254.80.127:33333是未连接的
+1. 对于server端，服务名是注册到哪里了？位置服务中吗？所以如果想要以服务名而不是IP：端口号的方式访问，client和server必须都要绑定位置服务吗？
+2. 直接编译成可执行文件client如果想要通过服务名称访问server
+   - 开发位置服务
+   - 能否利用ECSM的位置服务，如果可以，应该如何使用？
+
+3. 容器内命令开放的太少，什么命令都没权限，没办法调试
+
+4. 打包成ECS容器后，client和server的通信过程
+
+   - client是可执行文件，server部署在容器内；
+     - client选择硬编码，server容器部署选择自动映射端口：为什么会正好映射到33333？服务端程序里写的是33333，此时client能够和server成功连接
+     - client选择硬编码，server容器部署选择33333端口：也可以成功访问到33333，暂时没搞清楚是否选择自动映射的区别，猜测如果client是通过服务名称访问，这样就很有用：即使映射到节点上的不是33333端口，位置服务能够自动将请求转发
+
+   - client和server都部署在容器访问失败
+
+     - 问题一：为什么执行失败
+
+       ```go
+       vsoa_position_lookup(AF_INET, "dataproc_server",
+                                     (struct sockaddr *)&addr, &serv_len, NULL, &timeout)) 
+       ```
+
+     - 问题二：访问localhost:33333失败，这也是能够理解的，因为现在已经是一个新的容器了，是容器间通信，不是127.0.0.1了，硬编码自然会失败。为了这种妥协方式能够成功，我们把镜像的启动参数先不设置，我们在网页端登录之后手动启动app
+
+
+
+问题：
+
+1. client通过服务名访问失败（client容器部署 and client本机部署）
+2. client通过ip访问失败（client容器部署）：修改成169.254.80.127成功
